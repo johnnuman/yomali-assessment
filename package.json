@@ -1,0 +1,20 @@
+{
+  "name": "yomali-assessment",
+  "version": "1.0.0",
+  "description": "This is a modular monolithic web analytics application.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node src/app.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "dotenv": "^16.4.5",
+    "express": "^4.21.1",
+    "mysql2": "^3.11.3",
+    "node-cron": "^3.0.3",
+    "redis": "^4.7.0"
+  }
+}

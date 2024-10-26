@@ -1,2 +1,2 @@
 
-Copyright (C) 2024 Zaheer Fraz
+Copyright (C) 2024 Nouman Ul Haq
