@@ -1,0 +1,45 @@
+version: '3.8'
+
+services:
+  # Node.js App
+  app:
+    build: .
+    container_name: yomali-assessment-nodejs-app
+    restart: always
+    ports:
+      - "${APP_PORT}:${APP_PORT}"           # APP_PORT from .env
+    depends_on:
+      - yomali-assessment-db
+      - yomali-assessment-redis
+    environment:
+      APP_NAME: ${APP_NAME}                 # APP_NAME from .env
+      APP_PORT: ${APP_PORT}
+      MYSQL_HOST: yomali-assessment-db
+      MYSQL_USER: ${MYSQL_USER}             # MYSQL user from .env
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}     # MYSQL password from .env
+      MYSQL_DATABASE: ${MYSQL_DATABASE}     # MYSQL database name from .env
+      REDIS_HOST: yomali-assessment-redis
+      REDIS_PORT: ${REDIS_PORT}             # REDIS port from .env
+    volumes:
+      - .:/usr/src/app
+    command: npm start
+
+  # MySQL Database
+  yomali-assessment-db:
+    image: mysql:latest
+    container_name: yomali-assessment-mysql
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_PASSWORD}  # MYSQL password from .env
+    ports:
+      - "${MYSQL_PORT}:${MYSQL_PORT}"         # MYSQL port from .env
+    volumes:
+      - ./src/db:/docker-entrypoint-initdb.d
+
+  # Redis Cache
+  yomali-assessment-redis:
+    image: redis:latest
+    container_name: yomali-assessment-redis
+    ports:
+      - "${REDIS_PORT}:${REDIS_PORT}"         # REDIS port from .env
+    restart: always
