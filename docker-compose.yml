@@ -18,11 +18,13 @@ services:
       MYSQL_USER: ${MYSQL_USER}             # MYSQL user from .env
       MYSQL_PASSWORD: ${MYSQL_PASSWORD}     # MYSQL password from .env
       MYSQL_DATABASE: ${MYSQL_DATABASE}     # MYSQL database name from .env
+      MYSQL_PORT: ${MYSQL_PORT}             # MYSQL database port from .env
+      MYSQL_DIALECT: "mysql"
       REDIS_HOST: yomali-assessment-redis
       REDIS_PORT: ${REDIS_PORT}             # REDIS port from .env
     volumes:
       - .:/usr/src/app
-    command: npm start
+    command: npx nodemon src/app.js
 
   # MySQL Database
   yomali-assessment-db:
