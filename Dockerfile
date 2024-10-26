@@ -1,5 +1,5 @@
-# Use the Node.js LTS version
-FROM node:14
+# Use latest Node.js version
+FROM node:latest
 
 # Set working directory
 WORKDIR /usr/src/app

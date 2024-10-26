@@ -35,7 +35,7 @@ services:
       - "${MYSQL_PORT}:${MYSQL_PORT}"             # MYSQL port from .env
     volumes:
       - ./src/db:/docker-entrypoint-initdb.d      # Mount SQL files for initialization
-      - ./src/db/my.cnf:/etc/mysql/conf.d/my.cnf  # Mount custom MySQL configuration
+      - ./src/db/my.cnf:/etc/mysql/conf.d/my.cnf:ro  # Mount custom MySQL configuration
 
   # Redis Cache
   yomali-assessment-redis:
