@@ -30,11 +30,12 @@ services:
     container_name: yomali-assessment-mysql
     restart: always
     environment:
-      MYSQL_ROOT_PASSWORD: ${MYSQL_PASSWORD}  # MYSQL password from .env
+      MYSQL_ROOT_PASSWORD: ${MYSQL_PASSWORD}      # MYSQL password from .env
     ports:
-      - "${MYSQL_PORT}:${MYSQL_PORT}"         # MYSQL port from .env
+      - "${MYSQL_PORT}:${MYSQL_PORT}"             # MYSQL port from .env
     volumes:
-      - ./src/db:/docker-entrypoint-initdb.d
+      - ./src/db:/docker-entrypoint-initdb.d      # Mount SQL files for initialization
+      - ./src/db/my.cnf:/etc/mysql/conf.d/my.cnf  # Mount custom MySQL configuration
 
   # Redis Cache
   yomali-assessment-redis:
@@ -43,3 +44,6 @@ services:
     ports:
       - "${REDIS_PORT}:${REDIS_PORT}"         # REDIS port from .env
     restart: always
+    volumes:
+      - ./src/redis/redis.conf:/usr/local/etc/redis/redis.conf    # Custom Redis configuration
+    command: ["redis-server", "/usr/local/etc/redis/redis.conf"]
