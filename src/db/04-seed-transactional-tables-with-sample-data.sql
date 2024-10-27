@@ -29,7 +29,7 @@ VALUES
 -- Generate 1000 users
 INSERT INTO users (name, first_visit, last_visit)
 SELECT
-    CONCAT('user', n) AS user_id,  -- Generate user IDs like 'user1', 'user2', etc.
+    CONCAT('user', n) AS name,  -- Generate user IDs like 'user1', 'user2', etc.
     NOW() - INTERVAL FLOOR(RAND() * 180) DAY - INTERVAL FLOOR(RAND() * 1440) MINUTE AS first_visit,  -- Random first visit in the last 6 months
     NOW() - INTERVAL FLOOR(RAND() * 180) DAY AS last_visit  -- Random last visit, ensuring it happens after first_visit
 FROM
@@ -73,7 +73,7 @@ SET @row := 0;
 -- Insert 200,000 sessions into the Sessions table
 INSERT INTO sessions (user_id, page_id, browser_id, os_id, device_type_id, geo_id, ip_address, start_time)
 SELECT
-    CONCAT('user', FLOOR(RAND() * 1000 + 1)) AS user_id,   -- Random user_id from users table
+    FLOOR(RAND() * 1000 + 1) AS user_id,                  -- Random user_id from users table
     FLOOR(RAND() * 10 + 1) AS page_id,                    -- Random page_id between 1 and 10 (from pages table)
     FLOOR(RAND() * 5 + 1) AS browser_id,                  -- Random browser_id between 1 and 5 (from browser table)
     FLOOR(RAND() * 5 + 1) AS os_id,                       -- Random os_id between 1 and 5 (from operating_systems table)

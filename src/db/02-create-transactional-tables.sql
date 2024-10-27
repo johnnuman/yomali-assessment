@@ -13,7 +13,7 @@ CREATE INDEX idx_page_url ON pages(page_url);
 -- Users Table
 CREATE TABLE users (
     user_id INT AUTO_INCREMENT PRIMARY KEY,
-	name VARCHAR(255) PRIMARY KEY,
+	name VARCHAR(255) NOT NULL,
 	first_visit TIMESTAMP NOT NULL,
 	last_visit TIMESTAMP NOT NULL
 );
@@ -57,7 +57,7 @@ CREATE INDEX idx_geo_location ON geo_locations(country, region, city);
 -- sessions Table (Revised Indexing)
 CREATE TABLE sessions (
     session_id INT AUTO_INCREMENT PRIMARY KEY,
-    user_id VARCHAR(255),
+    user_id INT,
     page_id INT,
     browser_id INT,
     os_id INT,
