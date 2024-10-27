@@ -1,8 +1,13 @@
 module.exports = (sequelize, DataTypes) => {
     return sequelize.define('User', {
         user_id: {
-            type: DataTypes.STRING,
+            type: DataTypes.INTEGER,
+            autoIncrement: true,
             primaryKey: true,
+        },
+        name: {
+            type: DataTypes.STRING,
+            allowNull: false,
         },
         first_visit: {
             type: DataTypes.DATE,
@@ -10,7 +15,7 @@ module.exports = (sequelize, DataTypes) => {
         },
         last_visit: {
             type: DataTypes.DATE,
-            allowNull: false,
+            allowNull: true,
         },
     }, {
         tableName: 'users',

@@ -12,7 +12,8 @@ CREATE INDEX idx_page_url ON pages(page_url);
 
 -- Users Table
 CREATE TABLE users (
-	user_id VARCHAR(255) PRIMARY KEY,
+    user_id INT AUTO_INCREMENT PRIMARY KEY,
+	name VARCHAR(255) PRIMARY KEY,
 	first_visit TIMESTAMP NOT NULL,
 	last_visit TIMESTAMP NOT NULL
 );

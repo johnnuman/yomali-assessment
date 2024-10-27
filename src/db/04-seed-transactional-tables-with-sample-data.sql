@@ -27,7 +27,7 @@ VALUES
     (3, 'Tablet');
 
 -- Generate 1000 users
-INSERT INTO users (user_id, first_visit, last_visit)
+INSERT INTO users (name, first_visit, last_visit)
 SELECT
     CONCAT('user', n) AS user_id,  -- Generate user IDs like 'user1', 'user2', etc.
     NOW() - INTERVAL FLOOR(RAND() * 180) DAY - INTERVAL FLOOR(RAND() * 1440) MINUTE AS first_visit,  -- Random first visit in the last 6 months
