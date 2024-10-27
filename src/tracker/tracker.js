@@ -30,7 +30,8 @@ const trackingData = {
   browser: detectBrowser(),
   operatingSystem: detectOperatingSystem(),
   deviceType: detectDeviceType(),
-  timestamp: new Date().toISOString()
+  user: 'user12', // In live setup, this will be proper user id passed in by the initialization routine.
+  timestamp: new Date().toISOString(),
 };
 // Immediately show the collected data on the page for the assessment purpose only
 updateTrackedData(trackingData);

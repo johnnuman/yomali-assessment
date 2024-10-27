@@ -8,6 +8,7 @@ module.exports = {
     host: process.env.MYSQL_HOST,
     dialect: process.env.MYSQL_DIALECT,
     port: process.env.MYSQL_PORT,
+    logging: false
   },
   production: {
     username: process.env.MYSQL_USER,

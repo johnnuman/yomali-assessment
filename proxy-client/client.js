@@ -7,11 +7,14 @@ const websites = [
     'http://website2.com',
     'http://website3.com',
     'http://website4.com',
-    'http://website5.com'
+    'http://website5.com',
+    'http://website6.com',
+    'http://website7.com',
+    'http://website8.com',
 ];
 
 // Define 20 different users
-const users = Array.from({ length: 20 }, (_, i) => `user${i + 1}`);
+const users = Array.from({ length: 500 }, (_, i) => `user${i + 1}`);
 
 // Function to generate random tracking data
 function generateRandomTrackingData() {
@@ -26,7 +29,7 @@ function generateRandomTrackingData() {
         browser: browsers[Math.floor(Math.random() * browsers.length)],
         operatingSystem: operatingSystems[Math.floor(Math.random() * operatingSystems.length)],
         deviceType: deviceTypes[Math.floor(Math.random() * deviceTypes.length)],
-        userId: users[Math.floor(Math.random() * users.length)], // Random user
+        user: users[Math.floor(Math.random() * users.length)], // Random user
         timestamp: new Date().toISOString()
     };
 }
