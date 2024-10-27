@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tracker Demo</title>
+</head>
+<body>
+<h1>Tracker Demo Page</h1>
+<p>This page demonstrates the integration of the tracker.js file from the backend and its functionality.</p>
+
+<!-- Informing visitor about tracker's actions -->
+<p id="tracker-status">Tracker status: Initializing...</p>
+
+<!-- Preformatted element to show tracked data -->
+<h2>Tracked Data:</h2>
+<pre id="tracked-data">Collecting data...</pre>
+
+<!-- The embed snippet to asynchronously load the tracker.js -->
+<script>
+    (function() {
+        // Dynamically creating a script element and appending it to load the tracker.js without blocking page load
+        var script = document.createElement('script');
+        script.src = '/tracker.js';  // Endpoint to serve the tracker script from backend
+        script.async = true;         // Non-blocking load for better performance
+        var firstScript = document.getElementsByTagName('script')[0];
+        firstScript.parentNode.insertBefore(script, firstScript); // Insert the script before the first script tag in the document
+    })();
+</script>
+</body>
+</html>
