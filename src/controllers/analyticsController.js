@@ -1,7 +1,5 @@
-const { Op } = require('sequelize');
-const { Page, Session, sequelize } = require('../models');
+const { Page, sequelize } = require('../models');
 
-// Fetch all unique domains from the page_url column
 exports.getAllDomains = async (req, res) => {
     try {
         // Use Sequelize to extract distinct domains from page_url
@@ -21,22 +19,25 @@ exports.getAllDomains = async (req, res) => {
     }
 };
 
-// Fetch visits filtered by domain and date range
 exports.getVisitsByDate = async (req, res) => {
     const { startDate, endDate, domain } = req.query;
 
     try {
-        // Raw SQL query to fetch page views by domain and date range
-        const [results, metadata] = await sequelize.query(`
-      SELECT p.page_url, pv.date, pv.hour, pv.views
-      FROM page_views_aggregate pv
-      JOIN pages p ON pv.page_id = p.page_id
-      WHERE p.page_url LIKE :domain
-      AND pv.date BETWEEN :startDate AND :endDate
-      ORDER BY pv.date, pv.hour
-    `, {
+        const [results] = await sequelize.query(`
+          SELECT 
+            p.page_url,
+            DATE(s.start_time) AS date,
+            HOUR(s.start_time) AS hour,
+            COUNT(s.session_id) AS views
+          FROM sessions s
+          JOIN pages p ON s.page_id = p.page_id
+          WHERE p.page_url LIKE :domain
+          AND DATE(s.start_time) BETWEEN :startDate AND :endDate
+          GROUP BY p.page_url, date, hour
+          ORDER BY date, hour
+        `, {
             replacements: {
-                domain: `%${domain}%`,  // Allowing partial matches for the domain
+                domain: `%${domain}%`,
                 startDate,
                 endDate
             }
@@ -49,20 +50,21 @@ exports.getVisitsByDate = async (req, res) => {
     }
 };
 
+
 exports.getBrowserStats = async (req, res) => {
     const { domain, startDate, endDate } = req.query;
 
     try {
         const browserStats = await sequelize.query(
             `
-      SELECT b.browser_name AS browser, COUNT(s.browser_id) AS views
-      FROM sessions s
-      JOIN pages p ON s.page_id = p.page_id  -- Join with pages to get page_url
-      JOIN browsers b ON s.browser_id = b.browser_id  -- Join with browsers to get browser_name
-      WHERE p.page_url LIKE :domain  -- Use LIKE to filter by domain in page_url
-      AND s.start_time BETWEEN :startDate AND :endDate
-      GROUP BY b.browser_name
-      `,
+            SELECT b.browser_name AS browser, COUNT(s.browser_id) AS views
+            FROM sessions s
+            JOIN pages p ON s.page_id = p.page_id
+            JOIN browsers b ON s.browser_id = b.browser_id
+            WHERE p.page_url LIKE :domain
+            AND s.start_time BETWEEN :startDate AND :endDate
+            GROUP BY b.browser_name
+            `,
             {
                 replacements: { domain: `%${domain}%`, startDate, endDate },
                 type: sequelize.QueryTypes.SELECT,
@@ -87,14 +89,14 @@ exports.getDeviceStats = async (req, res) => {
     try {
         const deviceStats = await sequelize.query(
             `
-      SELECT dt.device_type AS device_type, COUNT(s.device_type_id) AS views
-      FROM sessions s
-      JOIN pages p ON s.page_id = p.page_id  -- Join with pages to get page_url
-      JOIN device_types dt ON s.device_type_id = dt.device_type_id  -- Join with device_types to get device_type
-      WHERE p.page_url LIKE :domain  -- Use LIKE to filter by domain in page_url
-      AND s.start_time BETWEEN :startDate AND :endDate
-      GROUP BY dt.device_type
-      `,
+            SELECT dt.device_type AS device_type, COUNT(s.device_type_id) AS views
+            FROM sessions s
+            JOIN pages p ON s.page_id = p.page_id
+            JOIN device_types dt ON s.device_type_id = dt.device_type_id
+            WHERE p.page_url LIKE :domain
+            AND s.start_time BETWEEN :startDate AND :endDate
+            GROUP BY dt.device_type
+            `,
             {
                 replacements: { domain: `%${domain}%`, startDate, endDate },
                 type: sequelize.QueryTypes.SELECT,

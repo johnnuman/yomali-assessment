@@ -1,23 +1,21 @@
 <template>
     <div class="bg-light-blue py-4 px-8 shadow-md">
         <div class="flex justify-between items-center space-x-4">
-            <!-- Domain Selection -->
             <div class="flex flex-col">
                 <label class="text-blue-800 font-semibold mb-1">Select Domain:</label>
                 <select v-model="selectedDomain" @change="onFilterChange"
-                        class="border border-blue-300 text-blue-900 bg-white px-4 py-2 rounded-lg focus:ring-2 focus:ring-blue-400 focus:border-blue-500 transition duration-300 ease-in-out">
+                        class="border border-blue-300 bg-white px-4 py-2 rounded-lg focus:ring-2 focus:ring-blue-400 focus:border-blue-500 transition duration-300 ease-in-out">
                     <option v-for="domain in domains" :key="domain" :value="domain">
                         {{ domain }}
                     </option>
                 </select>
             </div>
 
-            <!-- Date Range Picker -->
             <div class="flex flex-col">
                 <label class="text-blue-800 font-semibold mb-1">Select Date Range:</label>
                 <div class="flex space-x-2">
                     <input type="date" v-model="startDate" @change="onFilterChange"
-                           class="border border-blue-300 text-blue-900 bg-white px-4 py-2 rounded-lg focus:ring-2 focus:ring-blue-400 focus:border-blue-500 transition duration-300 ease-in-out" />
+                           class="border border-blue-300 text-blue-900 bg-white px-4 py-2 rounded-lg focus:ring-2 focus:ring-blue-400 focus:border-blue-500 transition duration-300 ease-in-out" style="margin-right:20px" />
                     <input type="date" v-model="endDate" @change="onFilterChange"
                            class="border border-blue-300 text-blue-900 bg-white px-4 py-2 rounded-lg focus:ring-2 focus:ring-blue-400 focus:border-blue-500 transition duration-300 ease-in-out" />
                 </div>
@@ -38,7 +36,6 @@
 
     const emit = defineEmits(['filterChange']);
 
-    // Helper function to get the date in 'YYYY-MM-DD' format
     const formatDate = (date) => {
         const d = new Date(date);
         const month = '' + (d.getMonth() + 1);
@@ -47,15 +44,13 @@
         return [year, month.padStart(2, '0'), day.padStart(2, '0')].join('-');
     };
 
-
-    // Fetch domains on mount
     onMounted(async () => {
         const today = new Date();
         const last30Days = new Date();
         last30Days.setDate(today.getDate() - 30);
 
-        startDate.value = formatDate(last30Days);  // 30 days ago
-        endDate.value = formatDate(today);         // Today
+        startDate.value = formatDate(last30Days);
+        endDate.value = formatDate(today);
 
         const response = await fetch(`${config.public.apiURL}/domains`);
         const data = await response.json();
@@ -69,20 +64,27 @@
         });
     });
 
-    // Emit filter change to parent component (dashboard)
     const onFilterChange = () => {
         const filterData = {
             domain: selectedDomain.value,
-            startDate: startDate.value,
-            endDate: endDate.value
+            startDate: startDate.value + ' 00:00:00',
+            endDate: endDate.value + ' 23:59:59'
         };
-        // Emit the filter change event
         emit('filterChange', filterData)
     }
 </script>
 
 <style scoped>
     .bg-light-blue {
-        background-color: #f0f4f8;
+        background-color: #fff;
+        border-radius: 8px;
+        box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.1);
+        padding: 20px;
+        margin: 20px;
+    }
+    .text-blue-800 {
+        font-weight: bold;
+        display: block;
+        margin: 5px;
     }
 </style>

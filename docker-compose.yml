@@ -1,10 +1,8 @@
-version: '3.8'
-
 services:
   # Node.js App
-  app:
+  yomali-assessment-backend:
     build: .
-    container_name: yomali-assessment-nodejs-app
+    container_name: yomali-assessment-backend
     restart: always
     ports:
       - "${APP_PORT}:${APP_PORT}"           # APP_PORT from .env

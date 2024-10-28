@@ -60,6 +60,7 @@
     // Load data into the chart
     const loadChartData = (data) => {
         visits.value = data;
+        drillDownPages.value = [];
 
         // Consolidate data by date
         const consolidated = {};
@@ -163,4 +164,30 @@
     .bg-gray-100 {
         background-color: #f7fafc;
     }
+    /* Styles for the table */
+    table {
+        width: 100%;
+        border-collapse: collapse; /* Ensure that borders are not duplicated */
+        box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1); /* Add shadow to the table */
+        margin: 20px 0;
+    }
+
+    /* Table cells (both td and th) have borders */
+    table td, table th {
+        border: 1px solid #dddddd; /* Light gray border around cells */
+        padding: 8px; /* Add some padding for better readability */
+        text-align: left; /* Align text to the left */
+    }
+
+    /* Optional: Add a background color to the table header */
+    table th {
+        background-color: #f4f4f4; /* Light background for header cells */
+        font-weight: bold; /* Bold text in header */
+    }
+
+    /* Optional: Add alternating row colors */
+    table tr:nth-child(even) {
+        background-color: #f9f9f9;
+    }
+
 </style>

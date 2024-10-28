@@ -8,7 +8,7 @@ WORKDIR /app
 COPY package*.json ./
 
 # Install dependencies using npm
-RUN npm install --frozen-lockfile --ignore-optional --verbose
+RUN npm install --verbose
 
 # Copy the rest of the application code
 COPY . .

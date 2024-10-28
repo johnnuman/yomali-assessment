@@ -8,7 +8,6 @@
     import { ref, onMounted, watch } from 'vue';
     import { Chart, registerables } from 'chart.js';
 
-    // Register the components for Chart.js
     Chart.register(...registerables);
 
     const props = defineProps({
@@ -32,10 +31,10 @@
         }
 
         const data = {
-            labels: Object.keys(props.chartData), // x-axis labels (categories)
+            labels: Object.keys(props.chartData),
             datasets: [{
                 label: props.chartLabel,
-                data: Object.values(props.chartData), // y-axis values
+                data: Object.values(props.chartData),
                 backgroundColor: 'rgba(75, 192, 192, 0.2)',
                 borderColor: 'rgba(75, 192, 192, 1)',
                 borderWidth: 1
@@ -43,7 +42,7 @@
         };
 
         const config = {
-            type: 'bar', // Set the chart type to "bar"
+            type: 'bar',
             data: data,
             options: {
                 responsive: true,
@@ -72,6 +71,6 @@
 <style scoped>
     canvas {
         max-width: 100%;
-        max-height: 400px; /* Adjust the height of the chart */
+        max-height: 400px;
     }
 </style>
