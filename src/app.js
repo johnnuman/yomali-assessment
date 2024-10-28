@@ -9,6 +9,7 @@ const errorHandler = require('./middleware/errorHandler');
 
 const trackerRoutes = require('./routes/trackerRoutes');
 const sessionRoutes = require('./routes/sessionRoutes');
+const analyticsRoutes = require('./routes/analyticsRoutes');
 
 dotenv.config();
 
@@ -16,6 +17,21 @@ const app = express();
 const PORT = process.env.APP_PORT || 3000;
 
 app.use(express.json());
+
+// Setting CORS headers manually
+app.use((req, res, next) => {
+    res.header('Access-Control-Allow-Origin', '*'); // Replace with your frontend domain
+    res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS'); // Allowed methods
+    res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization'); // Allowed headers
+    res.header('Access-Control-Allow-Credentials', 'true'); // Allow credentials (cookies, auth headers)
+
+    // Handle preflight requests for OPTIONS method
+    if (req.method === 'OPTIONS') {
+        return res.status(200).end();
+    }
+
+    next();
+});
 
 // Function to start the server after DB connection
 const checkDatabaseConnectivity = async (retries = 20, delay = 10000) => {
@@ -52,6 +68,7 @@ const setupServer = async () => {
 
     app.use('/', trackerRoutes);
     app.use('/', rateLimiter, sessionRoutes(redisCache));
+    app.use('/analytics', analyticsRoutes);
 
     app.use(errorHandler);
 
