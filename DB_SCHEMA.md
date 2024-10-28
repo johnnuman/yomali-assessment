@@ -7,6 +7,7 @@
 |                          | `created_at`          | TIMESTAMP          | DEFAULT CURRENT_TIMESTAMP                                        |
 |                          |                       |                    |                                                                  |
 | **users**                | `user_id`             | VARCHAR(255)       | PRIMARY KEY                                                      |
+|                          | `name`         | VARCHAR(255)          | NOT NULL                                                         |
 |                          | `first_visit`         | TIMESTAMP          | NOT NULL                                                         |
 |                          | `last_visit`          | TIMESTAMP          | NOT NULL                                                         |
 |                          |                       |                    |                                                                  |

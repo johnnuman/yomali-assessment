@@ -9,6 +9,8 @@ The following sections outline the **key decisions** I have made, explain the **
 ---
 
 ### Launching The Project
+
+#### Backend Server
 You can always launch the project by running:
 ```shell script
 docker compose up
@@ -18,6 +20,29 @@ You can recreate the container by running:
 ```shell script
 docker compose up --build
 ``` 
+
+#### Frontend Dashboard
+to Launch front-end:
+```shell script
+cd /src/client-interface
+
+npm run dev
+```
+
+#### A Client Proxy Script to Simulate Multiple Websites Sending Data
+In a separate terminal, launch on the root of project:
+```shell script
+node proxy-client/client.js
+```
+This will launch a demo script which will keep adding new data every second.
+
+#### Demo HTML Page with Tracker Snippet Integration
+A demo html page can be accessed [here](http://localhost:8080/tracker-demo.html). Make sure the docker containers are up and running before visiting this page.
+
+#### Tracker JS File
+Actual JS file containing tracking code can be found [here](./src/tracker/tracker.js)
+
+---
 
 ## Architecture Overview
 
@@ -34,17 +59,17 @@ The overall architecture is based on a **modular monolithic** design, with each 
 > - To demonstrate my proficiency with **Docker** in a **CD** setup where whole deployment and configuration is being managed from the same codebase.
 
 ### Project Structure
-- **src/api**: Handles the backend API logic.
-- **src/client-interface**: Frontend code for the analytics dashboard (React/Vue/Angular).
-- **src/tracker**: Client-side JavaScript tracker for embedding on websites.
-- **src/routes**: API routes for the backend.
+- **src/client-interface**: Frontend code for the analytics dashboard (Nuxt3).
+- **src/config**: Configuration file for `Sequelize` ORM.
 - **src/controllers**: Controllers for business logic and handling requests.
+- **src/cron**:  Cron job setup for aggregation tasks. I have not implemented it considering the scope of current assessment but it can be implemented to update aggregate tables.
 - **src/db**: Database initialization scripts for MySQL.
-- **src/redis**: Folder to hold advanced Redis configuration.
-- **src/cron**: Cron job setup for aggregation tasks.
-- **src/services**: Shared services, such as Redis and logger configurations.
-- **src/config**: Configuration files for MySQL and Redis.
-- **public**: Contains frontend assets like HTML, JS, CSS for the tracker.
+- **src/middleware**: Contains different middleware for rate-limiting global error handling etc.
+- **src/models**: Contains all the `Sequelize` ORM models.
+- **src/redis**: Folder to hold advanced Redis configuration and all the cache layer implementation code.
+- **src/routes**: API routes for the backend.
+- **src/tracker**: Client-side JavaScript tracker for embedding on websites.
+- **/proxy-client**: A client script to simulate multiple websites sending data to server.
 
 ### Database
 #### Schema
@@ -55,6 +80,8 @@ Database initialization and seeding automatically occurs at the time of creation
 
 ### Key Components:
 - **Node.js Application**: The central processing unit that handles API requests, processes session data, and communicates with MySQL and Redis.
+- **Nuxt 3 Frontend Application**: The frontend dashboard to show different analytics.
+- **Tracker JS File**: A javascript file to contain the code that will run in client websites, collect metrics and send back to server.
 - **MySQL Database**: The primary storage for structured data, including user sessions, page views, and other analytics data.
 - **Redis Cache**: Provides a caching layer to store frequently queried data, reducing the load on MySQL.
 - **Docker Compose**: Used to orchestrate the multi-container architecture, ensuring smooth communication between the services.
@@ -90,6 +117,9 @@ Here’s a breakdown of the architectural decisions and their justifications:
 
 - **Design Consideration**:  
   Redis has been configured to persist data using AOF (Append-Only File), ensuring that the cached data is not lost on container restarts. Additionally, we’ve optimized Redis memory usage by setting limits (`maxmemory`) and using the **LRU (Least Recently Used)** eviction policy to maintain memory efficiency.
+  
+- **How it works**:  
+  I have implemented as a self-contained cache layer as single source of truth for lookup data tables. `SessionController` will use helper methods on `cache` object to check the cache if a record exists for that particular value, if not, the cache layer will automatically check the database, if a record is found, it will update the cache and return the record. If it is not even found in the database, for the sake of this assessment, no further validation is performed and it is assumed that the data needs to be persisted in database. So a new record is inserted in database, cache is updated and record is returned back to `SessionController`. 
 
 > **Disclaimer**
 >
@@ -131,53 +161,29 @@ Here’s a breakdown of the architectural decisions and their justifications:
   Both MySQL and Redis can be set up with persistent volumes to ensure that data is not lost when containers are restarted. But that is beyond the scope of current assessment so assume any data will be lost in case the containers are restarted.
 
 ---
+### Tracker Javascript File
+This file will be minified and all the assessment related code will be stripped to achieve maximum speed without affecting performance of the host websites.
 
-## Final Thoughts
-
-This project demonstrates a careful balance between **performance optimization**, **scalability**, and **maintainability**. The decision to use Docker ensures a flexible and isolated development environment, while MySQL and Redis were chosen for their performance characteristics in handling large volumes of analytics data.
-
-Each architectural decision—from using Redis for caching to configuring resource limits on Docker containers—was made with a clear focus on ensuring that the system is capable of handling high traffic loads without sacrificing performance or data integrity.
-
-This setup is both robust and flexible, providing an excellent foundation for further expansion, such as integrating additional analytics features, moving to a microservices architecture, or scaling the database for even larger datasets.
-
----
-
-## Next Steps and Future Considerations
-
-- **Horizontal Scaling**: As traffic grows, consider introducing load balancers and clustering Redis to handle increased demand.
-- **Monitoring Integration**: Adding a monitoring stack (e.g., Prometheus and Grafana) to visualize system performance and detect bottlenecks early.
-- **Microservices Migration**: If the modular monolith grows in complexity, consider splitting core functionalities into microservices for greater scalability.
-
-
-Here's the reformatted content in **Markdown** format for you to copy into your README file:
-
----
-
-### Descriptive Variable and Function Names
+##### Descriptive Variable and Function Names
 
 - **`trackingApiUrl`, `trackingData`, `detectBrowser()`, `detectOperatingSystem()`, and `detectDeviceType()`** are all clear and descriptive, making the purpose of each variable and function immediately understandable.
 - The code prioritizes readability, which is essential in an assessment context, making it easy to follow and maintain.
 
-### Asynchronous Data Sending
+##### Asynchronous Data Sending
 
 - The **`sendTrackingData()`** function uses the **Fetch API** to send the collected data asynchronously, ensuring that the process does not block the webpage or affect its performance.
-- If the **Beacon API** is supported, the data will be sent when the user unloads the page. This approach ensures minimal impact on the user experience, as the data is sent in the background without affecting page load times.
 
-### Data Collection
+##### Error Handling
+- There is built-in fault-tolerance. The script will keep retrying until a `200` status code acknowledgement is received from the backend server.
 
+##### Data Collection
 - The script collects key data such as the **page URL**, **referrer URL**, **user-agent**, **browser type**, **operating system**, and **device type**, which are essential for a web tracker.
 - It timestamps the event using **`new Date().toISOString()`** for precise logging of when the event occurred, making the data useful for detailed analytics.
 
-### Error Handling
-
-- If the **Fetch** request fails (e.g., network issues), the script logs the error, ensuring that the failure is noted without affecting the user experience or breaking the website.
-
-### Client-Side Snippet
-
-You can place the following script on the client's website to load the tracker asynchronously:
-
+##### Client-Side Snippet
+Following script will be put in the client's website to load the tracker asynchronously:
 ```html
-<!-- Place this small snippet in the client's website -->
+<!-- Place this small snippet at the bottom of the HTML near <body> closing tag. -->
 <script>
   (function() {
     var script = document.createElement('script');
@@ -189,41 +195,51 @@ You can place the following script on the client's website to load the tracker a
 </script>
 ```
 
----
-
-### Step 4: Explanation of How It Works
-
-#### Backend Route (`/tracker.js`):
-
+##### How It Works
+###### Backend Route (`/tracker.js`):
 - This route serves the **minified version** of the JavaScript tracker when the client webpage requests it.
 - The script is cached for a long period (**`Cache-Control: public, max-age=31536000`**) to optimize load times after the first request. This means that the client won’t have to re-download the script repeatedly, improving performance.
 
-#### Client-Side Snippet:
-
+###### Client-Side Snippet:
 - The small embed snippet is **non-blocking** because it loads the script asynchronously using **`async = true`**.
 - The script dynamically creates a `<script>` tag, sets the `src` to your hosted **`tracker.js`**, and inserts it into the webpage, ensuring minimal impact on page load times.
 
-#### Minimizing Page Load Impact:
+##### Optional Enhancements
 
-- By serving the script from your backend (or a **CDN**), and ensuring it is loaded asynchronously, the performance impact on the client’s website is minimized.
-- The JavaScript file is cached to further reduce the load on your server and speed up subsequent requests.
+###### Dynamic Parameters:
 
----
-
-### Step 5: Optional Enhancements
-
-#### Dynamic Parameters:
-
-- If you want to allow clients to pass parameters (e.g., **`siteId`**), you can modify the client-side snippet to include query parameters when requesting the **`tracker.js`** file.
+- We can allow clients to pass parameters (e.g., **`siteId`**) and the backend endpoint can send out custom JS that is tailored to a specific `website` or `client`.
 
 Example:
 
 ```html
 <script async src="https://yourdomain.com/tracker.js?siteId=12345"></script>
 ```
+---
+### Frontend Dashboard
+Frontend dashboard is a `Nuxt 3` based application. It is a `SPA` and self-explanatory. All the websites are loaded in a dropdown on page load and there is a date-range selector. You can switch between different websites and date ranges to get different analytics.
 
-This way, you can customize the tracker behavior based on the client's site or other specific parameters.
+> Clicking on a `Date` point in the line graph drills down to show page view counts of individual pages within that website.
+
+To run the frontend application, on the terminal, move to `/src/client-interface` folder and run:
+```shell script
+npm run dev
+``` 
 
 ---
 
-Feel free to copy and paste these sections into your README file. Let me know if you need any further refinements!
+## Final Thoughts
+
+This project demonstrates a careful balance between **performance optimization**, **scalability**, and **maintainability**. The decision to use Docker ensures a flexible and isolated development environment, while MySQL and Redis were chosen for their performance characteristics in handling large volumes of analytics data.
+
+Each architectural decision—from using Redis for caching to configuring resource limits on Docker containers—was made with a clear focus on demonstrating my ability to tackle advanced concepts and integrate different complex layers into a working system.
+
+This setup is both robust and flexible, providing an excellent foundation for further expansion, such as integrating additional analytics features, moving to a microservices architecture, or scaling the database for even larger datasets.
+
+---
+
+## Next Steps and Future Considerations
+
+- **Horizontal Scaling**: As traffic grows, we may consider introducing load balancers and clustering Redis to handle increased demand.
+- **Monitoring Integration**: Adding a monitoring stack (e.g., Prometheus and Grafana) to visualize system performance and detect bottlenecks early.
+- **Microservices Migration**: If the modular monolith grows in complexity, consider splitting core functionalities into microservices for greater scalability.
